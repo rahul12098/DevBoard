@@ -1,0 +1,31 @@
+.header {
+    width: 100%;
+    padding: 20px 40px;
+    background-color: #1f2937;
+    color: white;
+    font-size: 24px;
+    font-weight: 600;
+    text-align: left;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  
+  .header h1 {
+    margin: 0;
+    font-size: 32px;
+  }
+  
+  .header p {
+    margin-top: 10px;
+    font-size: 16px;
+  }
+  
+  @media screen and (max-width: 600px) {
+    .header h1 {
+      font-size: 24px;
+    }
+  
+    .header p {
+      font-size: 14px;
+    }
+  }
+  
