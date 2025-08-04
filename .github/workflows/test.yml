@@ -1,25 +1,38 @@
-name: Test CI/CD Workflow
+name: Frontend CI/CD
 
 on:
   push:
     branches:
       - main
-      - frontend  # Also triggers when you push to frontend
+      - frontend  # Trigger on frontend branch pushes
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '22'  
 
-      - name: Run test build
-        run: |
-          echo "Running DevBoard test build"
-          npm install
-          npm run build || echo "Build step skipped for testing"
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: devboard-frontend   
+          slot-name: production
+          package: .

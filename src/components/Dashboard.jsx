@@ -4,29 +4,27 @@ import Card from "./Card";
 import "../styles/Dashboard.css";
 
 const Dashboard = () => {
-  const [data, setData] = useState(null);       // For dashboard mock data
-  const [prs, setPrs] = useState([]);           // For real PRs
+  const [data, setData] = useState(null); // For dashboard mock data
+  const [prs, setPrs] = useState([]); // For real PRs
   const [actions, setActions] = useState(null); // For GitHub Actions (CI/CD)
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [commitInfo, setCommitInfo] = useState(null);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // Fetch mock data
         const dashboardRes = await axios.get("/api/dashboard");
         setData(dashboardRes.data);
 
-        // Fetch real PRs
         const prsRes = await axios.get("/api/github/prs");
         setPrs(prsRes.data);
 
-        // Fetch GitHub Actions (last workflow run)
         const actionsRes = await axios.get("/api/github/actions");
-        setActions(actionsRes.data.workflow_runs[0]); // latest workflow
+        setActions(actionsRes.data.workflow_runs[0]); // Latest run
+        setCommitInfo(actionsRes.data.latestCommit); // Commit info
       } catch (err) {
         setError("Failed to fetch dashboard data");
-        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -43,11 +41,35 @@ const Dashboard = () => {
       {/* CI/CD Pipeline Status */}
       <Card title="CI/CD Pipeline Status">
         {actions ? (
-          <p>
-            Latest Build: {actions.status === "completed" ? "✅ Success" : "⚠️ Pending"} <br />
-            Workflow: {actions.name} <br />
-            Updated At: {new Date(actions.updated_at).toLocaleString()}
-          </p>
+          <div>
+            <p>
+              <strong>Status:</strong>{" "}
+              {actions.conclusion === "success" ? (
+                <span style={{ color: "green" }}>✅ Success</span>
+              ) : actions.conclusion === "failure" ? (
+                <span style={{ color: "red" }}>❌ Failed</span>
+              ) : (
+                <span>⏳ In Progress</span>
+              )}
+            </p>
+            <p>
+              <strong>Workflow:</strong> {actions.name}
+            </p>
+            <p>
+              <strong>Updated At:</strong>{" "}
+              {new Date(actions.updated_at).toLocaleString()}
+            </p>
+            {commitInfo && (
+              <>
+                <p>
+                  <strong>Commit:</strong> {commitInfo.message}
+                </p>
+                <p>
+                  <strong>Author:</strong> {commitInfo.author}
+                </p>
+              </>
+            )}
+          </div>
         ) : (
           <p>No workflow data</p>
         )}
