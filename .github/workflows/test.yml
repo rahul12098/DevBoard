@@ -35,5 +35,6 @@ jobs:
         with:
           app-name: devboard-frontend   
           slot-name: production
-          package: ./build
+          package: ./dist
+
 
