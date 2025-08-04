@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - frontend  # Trigger on frontend branch pushes
+      - frontend  # optional, depending on your setup
 
 jobs:
   build-and-deploy:
@@ -17,24 +17,17 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '22'  
+          node-version: '18'  # use 18 for best compatibility with Vite
 
       - name: Install dependencies
         run: npm install
 
-      - name: Build frontend
+      - name: Build project
         run: npm run build
 
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Deploy to Azure Web App
+      - name: Deploy to Azure Web App using Publish Profile
         uses: azure/webapps-deploy@v2
         with:
-          app-name: devboard-frontend   
-          slot-name: production
-          package: ./dist
-
-
+          app-name: devboard-frontend  # your Web App name
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: ./dist  # Vite builds to dist by default
